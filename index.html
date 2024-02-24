@@ -96,7 +96,7 @@
       "Fish", "Bear", "Bird", "Duck", "Tree",
       "Rose", "Moon", "Star", "Book", "Door",
       "Hand", "Foot", "Ship", "Boat", "Sock",
-      "Hat", "Ball", "Lamp", "Fish", "Fork",
+      "Hack", "Ball", "Lamp", "Fish", "Fork",
       "Cake", "Frog", "Lion", "Goat", "Duck",
       "Deer", "Hope", "Jump", "Kite", "Lake",
       "Leaf", "Love", "Mint", "Note", "Palm",
@@ -113,7 +113,7 @@
     ];
 
     const keys = Object.keys(alphabet);
-    let currentQuestionIndex = 0;
+    let currentQuestionIndex = pickInt(1000);
     let level = 0;
     let modeSwitch = document.getElementById('modeSwitch');
 
