@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communicating with Other Hams - Q Signals</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      text-align: center;
+    }
+
+    #question {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .option-container {
+      display: flex;
+      flex-direction: column;
+      row-gap: 10px;
+      justify-content: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e0e0e0;
+    }
+
+    #feedback {
+      margin: 10px;
+      font-size: 24px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <h1>Communicating with Other Hams - Q signals</h1>
+  <div id="question"></div>
+  <div id="options" class="option-container"></div>
+  <div id="feedback">
+  </div>
+
+  <script>
+    const qcodes = {
+      "QRG": "Your exact frequency (or that of ______) is _________kHz.",
+      "QRG?": "Will you tell me my exact frequency (or that of __________)?",
+      "QRL": "I am busy (or I am busy with _________) /  Frequency is in use.",
+      "QRL?": "Are you busy? /  Is the frequency is in use?",
+      "QRM": "Your transmission is being interfered with _________ (1 to 5)",
+      "QRM?": "Is my transmission being interfered with?",
+      "QRN": "I am troubled by static _________. (1 to 5)",
+      "QRN?": "Are you troubled by static?",
+      "QRO": "Increase power.",
+      "QRO?": "Shall I increase power?",
+      "QRP": "Decrease power",
+      "QRP?": "Shall I decrease power?",
+      "QRQ": "Send faster (_________wpm).",
+      "QRQ?": "Shall I send faster?",
+      "QRS": "Send more slowly (_________wpm).",
+      "QRS?": "Shall I send more slowly?",
+      "QRT": "Stop sending.",
+      "QRT?": "Shall I stop sending?",
+      "QRU": "I have nothing for you.",
+      "QRU?": "Have you anything for me?",
+      "QRV": "I am ready.",
+      "QRV?": "Are you ready?",
+      "QRX": "I will call you again at ______hours (on ______kHz).",
+      "QRX?": "When will you call me again? ",
+      "QRZ": "You are being called by _________ (on ______kHz).",
+      "QRZ?": "Who is calling me?",
+      "QSB": "Your signals are fading.",
+      "QSB?": "Are my signals fading?",
+      "QSK": "I can hear you between signals; break in on my transmission.",
+      "QSK?": "Can you hear me between your signals and if so can I break in on your transmission?",
+      "QSL": "I am acknowledging receipt.",
+      "QSL?": "Can you acknowledge receipt (of a message or transmission)?",
+      "QSO": "I can communicate with _________ direct (or relay through ______).",
+      "QSO?": "Can you communicate with ______ direct or by relay?",
+      "QSP": "I will relay to ______.",
+      "QSP?": "Will you relay to ______?",
+      "QST": "General call preceding a message addressed to all amateurs and ARRL members. “CQ ARRL.”",
+      "QSX": "I am listening to ______ on ______kHz.",
+      "QSX?": "Will you listen to ______on ______kHz?",
+      "QSY": "Change to transmission on another frequency (or on ______kHz).",
+      "QSY?": "Shall I change to transmission on another frequency (or on ______kHz)?",
+      "QTC": "I have ______messages for you (or for ______).",
+      "QTC?": "How many messages have you to send?",
+      "QTH": "My location is _________.",
+      "QTH?": "What is your location?",
+      "QTR": "The time is _________.",
+      "QTR?": "What is the correct time?",
+    };
+
+    const keys = Object.keys(qcodes);
+    let currentQuestionIndex = pickInt(1000);
+    let level = 0;
+
+    function generateQuestion() {
+      const qcode = keys[currentQuestionIndex % keys.length];
+
+      const correctAnswer = qcodes[qcode];
+      let wrongAnswers = keys.
+        filter(key => key != qcode && qcode.endsWith("?") == key.endsWith("?")).
+        map(key => qcodes[key]);
+      
+      wrongAnswers = pickN(wrongAnswers, 3);
+
+      document.getElementById('question').innerText = `What does ${qcode} mean`;
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      const options = [correctAnswer, ...wrongAnswers];
+      options.sort(() => Math.random() - 0.5);
+
+      options.forEach(option => {
+        const button = document.createElement('button');
+        button.classList.add('option');
+        button.innerText = option;
+        button.onclick = () => checkAnswer(option === correctAnswer);
+        optionsDiv.appendChild(button);
+      });
+    }
+
+    function checkAnswer(isCorrect) {
+      const feedbackDiv = document.getElementById('feedback');
+      let next;
+      if (isCorrect) {
+        feedbackDiv.innerText = 'Correct!';
+        currentQuestionIndex = pickInt(1000);
+        setTimeout(() => {
+          feedbackDiv.innerText = '';
+          generateQuestion();
+        }, 500);
+
+      } else {
+        feedbackDiv.innerText = 'Incorrect!';
+        setTimeout(() => {
+          feedbackDiv.innerText = '';
+        }, 500);
+      }
+    }
+
+    function pickInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    function pick(options) {
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
+    function pickN(options, n) {
+      res = []
+      while (res.length < n && options.length > 0) {
+        picked = pick(options);
+        res.push(picked);
+        options = options.filter(x => x != picked);
+      }
+      return res;
+    }
+
+    generateQuestion();
+  </script>
+</body>
+
+</html>
