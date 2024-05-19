@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communicating with Other Hams - Q Signals</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #question {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .option-container {
+            display: flex;
+            flex-direction: column;
+            row-gap: 10px;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        #feedback {
+            margin: 10px;
+            font-size: 24px;
+        }
+
+        #notes {
+            margin 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Communicating with Other Hams - Country prefixes</h1>
+    <div id="streak"></div>
+    <div id="question"></div>
+    <div id="options" class="option-container"></div>
+    <div id="feedback"></div>
+    <div id="notes"><a href="https://tankonyv.ham.hu/A_vizsga-DJ4UF/?cid=a11">source</a>
+    </div>
+
+
+    <script>
+        const prefixes = {
+            "Portugália": ["CT", "CS"],
+            "Andorra": ["C3"],
+            "Németország": ["DL", "DA...DO"],
+            "Spanyolország": ["EA", "EB", "EC", "ED"],
+            "Írország": ["EI"],
+            "Moldávia": ["ER"],
+            "Észtország": ["ES"],
+            "Fehér-Oroszország": ["EU"],
+            "Franciaország": ["F", "FA...FE"],
+            "Nagybritannia": ["G", "GB...GM", "M"],
+            "Magyarország": ["HA", "HG"],
+            "Svájc": ["HB"],
+            "Liechtenstein": ["HB0"],
+            "Vatikán": ["HV"],
+            "Olaszország": ["I", "IA...IZ"],
+            "Norvégia": ["LA", "LB"],
+            "Luxemburg": ["LX"],
+            "Litvánia": ["LY"],
+            "Bulgaria": ["LZ"],
+            "Ausztria": ["OE"],
+            "Finnország": ["OH", "OF...OI"],
+            "Csehország": ["OK", "OL"],
+            "Szlovákia": ["OM"],
+            "Belgium": ["ON"],
+            "Faröer-szigetek": ["OY"],
+            "Dánia": ["OZ"],
+            "Hollandia": ["PA", "PB", "PD", "PE", "PI"],
+            "Oroszország": ["RA", "UA..."],
+            "Königsberg": ["RA2"],
+            "Svédország": ["SM", "SK", "SL"],
+            "Lengyelország": ["SP", "SO"],
+            "Görögország": ["SV"],
+            "Szlovénia": ["S5"],
+            "Korzika": ["TK"],
+            "San Marino": ["T7"],
+            "Bosznia-Hercegovina": ["T9"],
+            "Törökország": ["TA", "TB", "TC"],
+            "Ukrajna": ["UR"],
+            "Lettország": ["YL"],
+            "Románia": ["YO"],
+            "Szerbia-Montenegró": ["YU", "YT"],
+            "Albánia": ["ZA"],
+            "Macedónia": ["Z3"],
+            "Gibraltár": ["ZB"],
+            "Monaco": ["3A"],
+            "Horvátország": ["9A"],
+            "Málta": ["9H"]
+        };
+
+        const keys = Object.keys(prefixes);
+        let currentQuestionIndex = pickInt(1000);
+        let level = 0;
+        let streak = 0;
+
+        function generateQuestion() {
+            const streakDiv = document.getElementById('streak');
+            streakDiv.innerText = `streak ${streak}`;
+
+            const country = keys[currentQuestionIndex % keys.length];
+
+            const correctAnswer = pick(prefixes[country]);
+            let wrongAnswers = keys.
+                filter(key => key != country).
+                flatMap(key => prefixes[key]);
+
+            wrongAnswers = pickN(wrongAnswers, 3);
+
+            document.getElementById('question').innerText = `The prefix of ${country} is:`;
+
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+
+            const options = [correctAnswer, ...wrongAnswers];
+            options.sort(() => Math.random() - 0.5);
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option');
+                button.innerText = option;
+                button.onclick = () => checkAnswer(option === correctAnswer);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(isCorrect) {
+            const feedbackDiv = document.getElementById('feedback');
+            
+            streak = isCorrect ? streak + 1 : 0;
+          
+
+            let next;
+            if (isCorrect) {
+                feedbackDiv.innerText = 'Correct!';
+                currentQuestionIndex = pickInt(1000);
+                setTimeout(() => {
+                    feedbackDiv.innerText = '';
+                    generateQuestion();
+                }, 500);
+            } else {
+                feedbackDiv.innerText = 'Incorrect!';
+                setTimeout(() => {
+                    feedbackDiv.innerText = '';
+                }, 500);
+            }
+        }
+
+        function pickInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function pick(options) {
+            return options[Math.floor(Math.random() * options.length)];
+        }
+
+        function pickN(options, n) {
+            res = []
+            while (res.length < n && options.length > 0) {
+                picked = pick(options);
+                res.push(picked);
+                options = options.filter(x => x != picked);
+            }
+            return res;
+        }
+
+        generateQuestion();
+    </script>
+</body>
+
+</html>
