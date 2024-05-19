@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NATO Phonetic Alphabet Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    #question {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .option-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 10px;
+      justify-content: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e0e0e0;
+    }
+
+    #feedback {
+      font-size: 24px;
+      margin;
+    }
+
+    #modeswitch-container {
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>NATO Phonetic Alphabet Practice</h1>
+  <div id="question"></div>
+  <div id="options" class="option-container"></div>
+  <div id="modeswitch-container">
+    <button id="modeSwitch"></button>
+  </div>
+  <div id="feedback">
+  </div>
+  <div id="back"><a href="index.html">back to the tests</a></div>
+  <script>
+
+    const alphabet = {
+      "A": ["Alpha", "Apple", "America", "Alaska"],
+      "B": ["Bravo", "Banana", "Baseball", "Beach"],
+      "C": ["Charlie", "Cat", "Computer", "Canada"],
+      "D": ["Delta", "Dog", "Dance", "Doctor"],
+      "E": ["Echo", "Elephant", "Eagle", "England"],
+      "F": ["Foxtrot", "Fish", "Football", "France"],
+      "G": ["Golf", "Guitar", "Garden", "Germany"],
+      "H": ["Hotel", "House", "Horse", "Hawaii"],
+      "I": ["India", "Ice Cream", "Italy", "Internet"],
+      "J": ["Juliet", "Jacket", "Japan", "Jungle"],
+      "K": ["Kilo", "Kangaroo", "Keyboard", "Kite"],
+      "L": ["Lima", "Lion", "Library", "London"],
+      "M": ["Mike", "Monkey", "Movie", "Mexico"],
+      "N": ["November", "Nurse", "New York", "Netherlands"],
+      "O": ["Oscar", "Orange", "Olympics", "Ocean"],
+      "P": ["Papa", "Penguin", "Pizza", "Paris"],
+      "Q": ["Quebec", "Queen", "Question", "Quilt"],
+      "R": ["Romeo", "Robot", "Rainbow", "Russia"],
+      "S": ["Sierra", "Sun", "Soccer", "Spain"],
+      "T": ["Tango", "Tiger", "Train", "Thailand"],
+      "U": ["Uniform", "Umbrella", "Unicorn", "University"],
+      "V": ["Victor", "Violin", "Volcano", "Village"],
+      "W": ["Whiskey", "Waterfall", "Wine", "Washington"],
+      "X": ["X-ray", "Xylophone", "Xbox", "Xerox"],
+      "Y": ["Yankee", "Yacht", "Yogurt", "Yard"],
+      "Z": ["Zulu", "Zebra", "Zoo", "Zimbabwe"]
+    };
+
+    const fourLetterWords = [
+      "Fish", "Bear", "Bird", "Duck", "Tree",
+      "Rose", "Moon", "Star", "Book", "Door",
+      "Hand", "Foot", "Ship", "Boat", "Sock",
+      "Hack", "Ball", "Lamp", "Fish", "Fork",
+      "Cake", "Frog", "Lion", "Goat", "Duck",
+      "Deer", "Hope", "Jump", "Kite", "Lake",
+      "Leaf", "Love", "Mint", "Note", "Palm",
+      "Pear", "Pool", "Rice", "Road", "Rock",
+      "Rule", "Sand", "Snow", "Song", "Spin",
+      "Star", "Time", "Toad", "Wave", "Wind",
+      "Wish", "Bold", "Calm", "Corn", "Dust", "Eyes",
+      "Fair", "Gold", "Horn", "Iron", "Jump",
+      "Keen", "Leaf", "Life", "Mild", "Nest",
+      "Open", "Palm", "Rust", "Safe", "Tall",
+      "Vine", "Wish", "Zest", "Zone",
+      "Quit", "Yoga", "Yolk", "Next", "Axle",
+      "Quay", "Lynx", "Sexy", "Foxy", "Roxy"
+    ];
+
+    const keys = Object.keys(alphabet);
+    let currentQuestionIndex = pickInt(1000);
+    let level = 0;
+    let modeSwitch = document.getElementById('modeSwitch');
+
+    function generateQuestion() {
+      if (level == 0) {
+        modeSwitch.innerText = "Switch to Intermediate";
+        return generateQuestion1();
+      } else {
+        modeSwitch.innerText = "Switch to Beginner";
+        return generateQuestion2();
+      }
+    }
+
+    function generateQuestion1() {
+      const letter = keys[currentQuestionIndex % keys.length];
+
+      const correctAnswer = alphabet[letter][0];
+      const wrongAnswers = alphabet[letter].slice(1);
+
+      document.getElementById('question').innerText = `What is the NATO phonetic for: ${letter}`;
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      const options = [correctAnswer, ...wrongAnswers];
+      options.sort(() => Math.random() - 0.5);
+
+      options.forEach(option => {
+        const button = document.createElement('button');
+        button.classList.add('option');
+        button.innerText = option;
+        button.onclick = () => checkAnswer(option === correctAnswer);
+        optionsDiv.appendChild(button);
+      });
+    }
+
+
+    function generateQuestion2() {
+      const word = fourLetterWords[currentQuestionIndex % fourLetterWords.length];
+
+      let correctAnswer = "";
+      for (let letter of word) {
+        correctAnswer += alphabet[letter.toUpperCase()][0] + " ";
+      }
+
+      const wrongAnswers = [];
+      while (wrongAnswers.length < 3) {
+        let wrongAnswer = '';
+        for (let letter of word) {
+          let options = alphabet[letter.toUpperCase()];
+          options = [options[0], options[0], ...options];
+          wrongAnswer += pick(options) + " ";
+        }
+        if (wrongAnswer != correctAnswer) {
+          wrongAnswers.push(wrongAnswer);
+        }
+      }
+
+      document.getElementById('question').innerText = `What is the NATO phonetic for: ${word}`;
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      const options = [correctAnswer, ...wrongAnswers];
+      options.sort(() => Math.random() - 0.5);
+
+      options.forEach(option => {
+        const button = document.createElement('button');
+        button.classList.add('option');
+        button.innerText = option;
+        button.onclick = () => checkAnswer(option === correctAnswer);
+        optionsDiv.appendChild(button);
+      });
+    }
+
+    function checkAnswer(isCorrect) {
+      const feedbackDiv = document.getElementById('feedback');
+      let next;
+      if (isCorrect) {
+        feedbackDiv.innerText = 'Correct!';
+        currentQuestionIndex = pickInt(1000);
+      } else {
+        feedbackDiv.innerText = 'Incorrect!';
+      }
+
+      setTimeout(() => {
+        feedbackDiv.innerText = '';
+        generateQuestion();
+      }, 500);
+    }
+
+    function pickInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    function pick(options) {
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
+    modeSwitch.addEventListener('click', () => {
+      level = 1 - level;
+      generateQuestion();
+    });
+
+    generateQuestion();
+  </script>
+</body>
+
+</html>
