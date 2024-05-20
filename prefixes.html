@@ -117,6 +117,15 @@
         let level = 0;
         let streak = 0;
         let longestStreak = 0;
+        let old_questions = new Map();
+
+        function weight(q) {
+            return 1 + 3 * q.failures / (q.attempts + 1);
+        }
+
+        function sum(arr) {
+            return arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        }
 
         function generateQuestion1() {
             const country = keys[currentQuestionIndex % keys.length];
@@ -125,47 +134,69 @@
                 filter(key => key != country).
                 flatMap(key => prefixes[key]);
 
-            return [`The prefix of ${country} is:`, correctAnswer, wrongAnswers];
+            return {text: `The prefix of ${country} is:`, correctAnswer, wrongAnswers};
         }
 
         function generateQuestion2() {
             const country = keys[currentQuestionIndex % keys.length];
             const question = pick(prefixes[country]);
             let wrongAnswers = keys.filter(key => key != country);
-            return [`${question} is the prefix of:` , country, wrongAnswers];
+            return {text: `${question} is the prefix of:`, correctAnswer: country, wrongAnswers};
         }
 
+
+        function generateQuestion() {
+            if (old_questions.size == 0 || Math.random() < 0.7) {
+                question = generateQuestion2();
+                if (!old_questions.has(JSON.stringify(question))) {
+                    old_questions.set(JSON.stringify(question),  { attempts: 0, failures: 0 })
+                }
+                return question;
+            }
+            const total_weight = sum(old_questions.values().map(weight));
+            const random_choice = Math.random() * total_weight;
+            let current_weight = 0
+            for (const [stQuestion, q] of old_questions.entries()) {
+                current_weight += weight(q);
+                if (current_weight >= random_choice){
+                    return JSON.parse(stQuestion);
+                }
+            }
+        }
 
         function showQuestion() {
             const streakDiv = document.getElementById('streak');
             streakDiv.innerText = `streak ${streak}, longest streak ${longestStreak}`;
-            let [question, correctAnswer, wrongAnswers] = generateQuestion2();
-            wrongAnswers = pickN(wrongAnswers, 3);
+            let question = generateQuestion();
 
-            document.getElementById('question').innerText = question;
+            let wrongAnswers = pickN(question.wrongAnswers, 3);
+
+            document.getElementById('question').innerText = question.text;
 
             const optionsDiv = document.getElementById('options');
             optionsDiv.innerHTML = '';
 
-            const options = [correctAnswer, ...wrongAnswers];
+            const options = [question.correctAnswer, ...wrongAnswers];
             options.sort(() => Math.random() - 0.5);
 
             options.forEach(option => {
                 const button = document.createElement('button');
                 button.classList.add('option');
                 button.innerText = option;
-                button.onclick = () => checkAnswer(option === correctAnswer);
+                button.onclick = () => checkAnswer(question, option);
                 optionsDiv.appendChild(button);
             });
         }
 
-        function checkAnswer(isCorrect) {
+        function checkAnswer(question, answer) {
+            const isCorrect = answer === question.correctAnswer;
             const feedbackDiv = document.getElementById('feedback');
 
             streak = isCorrect ? streak + 1 : 0;
             longestStreak = Math.max(streak, longestStreak);
 
-
+            const {attempts, failures} = old_questions.get(JSON.stringify(question));
+            old_questions.set(JSON.stringify(question), {attempts: attempts+1, failures: isCorrect ? failures : failures+1});
             let next;
             if (isCorrect) {
                 feedbackDiv.innerText = 'Correct!';
