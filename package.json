@@ -1,0 +1,22 @@
+{
+  "name": "ham-tests",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "npx parcel build src/index.html",
+    "start": "npx parcel serve src/index.html --open"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/react": "^18.3.3",
+    "preact": "^10.22.0",
+    "preact-jsx-runtime": "^1.2.0",
+    "preact-render-to-string": "^6.5.2",
+    "react": "^18.3.1",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  }
+}
