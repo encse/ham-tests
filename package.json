@@ -4,7 +4,9 @@
   "description": "",
   "scripts": {
     "build": "npx parcel build src/index.html",
-    "start": "npx parcel serve src/index.html --open"
+    "start": "npx parcel serve src/index.html --open",
+    "predeploy": "npm run build",
+    "deploy": "npx gh-pages -d dist"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +19,7 @@
     "typescript": "^5.4.5"
   },
   "devDependencies": {
+    "gh-pages": "^6.1.1",
     "parcel-bundler": "^1.12.5"
   }
 }
